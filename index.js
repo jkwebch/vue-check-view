@@ -6,6 +6,8 @@ function getPlugin () {
       In: 'view-in',
       GtHalf: 'view-in--gt-half',
       GtThird: 'view-in--gt-third',
+      Up: 'view-up',
+      Down: 'view-down',
       Out: 'view-out',
       Above: 'view-out--above',
       Below: 'view-out--below'
@@ -45,7 +47,10 @@ function getPlugin () {
     var items = {},
       scrollThrottledHandler = throttle(scrollHandler, options.throttleInterval)
     var scrollValue = window.pageYOffset,
+      type = 0,
       itemIndex = 0
+    
+    var insideThreshold = options.insideThreshold || 0
 
     window.addEventListener('scroll', scrollThrottledHandler)
     window.addEventListener('resize', scrollThrottledHandler)
@@ -86,6 +91,11 @@ function getPlugin () {
       for (var id in items) {
         var i = items[id],
           inType = getInType(i)
+        
+        var direction = 
+          scrollValue <= 0
+            ? scrollValue === 0 ? 0 : 1
+            : 2
 
         var type = inType[0],
           percentInView = inType[1],
@@ -94,8 +104,8 @@ function getPlugin () {
           rect = inType[4],
           classes = i.classes,
           classList = i.element.classList,
-          inViewChange = i.percent <= 0 && percentInView,
-          outViewChange = i.percent && percentInView === 0
+          inViewChange = i.percent <= insideThreshold && percentInView > insideThreshold,
+          outViewChange = i.percent > insideThreshold && percentInView <= insideThreshold
 
         if (percentInView === 0 && i.percent === 0) continue
         i.rect = rect
@@ -105,6 +115,10 @@ function getPlugin () {
         Object.keys(classes).forEach(function (v) {
           classes[v] = false
         })
+
+        if(i.direction === undefined || inViewChange || outViewChange) {
+          i.direction = direction
+        }
 
         if (percentInView >= 0.5) {
           classes[ClassNames.GtHalf] = true
@@ -134,6 +148,9 @@ function getPlugin () {
         else if (type === 2) {
           classes[ClassNames.In] = true
         }
+
+        classes[ClassNames.Up] = i.direction === 1
+        classes[ClassNames.Down] = i.direction === 2
 
         Object.keys(classes).forEach(function (n) {
           classList.toggle(n, classes[n])
@@ -167,6 +184,7 @@ function getPlugin () {
         }
 
         i.percent = percentInView
+        i.type = type
       }
 
       scrollValue = viewportTop
