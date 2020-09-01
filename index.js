@@ -65,14 +65,22 @@ function getPlugin () {
           elementBottom = elementTop + rect.height,
           topIn = elementTop > viewportTop && elementTop < viewportBottom,
           bottomIn = elementBottom > viewportTop && elementBottom < viewportBottom,
-          percentInView = topIn || bottomIn ? ((bottomIn ? elementBottom : viewportBottom) - (topIn ? elementTop : viewportTop)) / rect.height : 0,
+          isWithin = elementTop < viewportTop && elementBottom > viewportBottom,
+          percentInView = topIn || bottomIn || isWithin
+            ? ((bottomIn ? elementBottom : viewportBottom) - (topIn ? elementTop : viewportTop)) / rect.height 
+            : 0,
           centerPercent = (elementTop - viewportTop + rect.height / 2) / viewportHeight,
           zeroPoint = viewportTop - rect.height,
           topPercent = (elementTop - zeroPoint) / (viewportBottom - zeroPoint),
           isAbove = percentInView === 0 && elementTop < viewportTop,
           isBelow = percentInView === 0 && elementTop > viewportTop
 
-        return [(topIn ? 1 : 0) | (bottomIn ? 2 : 0) | (isAbove ? 4 : 0) | (isBelow ? 8 : 0), roundPercent(percentInView), roundPercent(centerPercent), roundPercent(topPercent), rect]
+        return [
+          (topIn ? 1 : 0) | (bottomIn ? 2 : 0) | (isAbove ? 4 : 0) | (isBelow ? 8 : 0) | (isWithin ? 16 : 0),
+          roundPercent(percentInView), 
+          roundPercent(centerPercent), 
+          roundPercent(topPercent), 
+          rect]
       }
 
       for (var id in items) {
@@ -105,6 +113,9 @@ function getPlugin () {
           classes[ClassNames.GtThird] = true
         }
 
+        if (type === 16) {
+          classes[ClassNames.In] = true
+        }
         if (type === 8) {
           classes[ClassNames.Below] = true
           classes[ClassNames.Out] = true
