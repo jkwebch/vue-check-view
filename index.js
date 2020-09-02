@@ -10,7 +10,8 @@ function getPlugin () {
       Down: 'view-down',
       Out: 'view-out',
       Above: 'view-out--above',
-      Below: 'view-out--below'
+      Below: 'view-out--below',
+      Threshold: 'view-in--threshold'
     },
     EventTypes = {
       Enter: 'enter',
@@ -49,8 +50,6 @@ function getPlugin () {
     var scrollValue = window.pageYOffset,
       type = 0,
       itemIndex = 0
-    
-    var insideThreshold = options.insideThreshold || 0
 
     window.addEventListener('scroll', scrollThrottledHandler)
     window.addEventListener('resize', scrollThrottledHandler)
@@ -97,6 +96,8 @@ function getPlugin () {
             ? scrollValue === 0 ? 0 : 1
             : 2
 
+        var insideThreshold = options.insideThreshold() || 0
+
         var type = inType[0],
           percentInView = inType[1],
           percentCenter = inType[2],
@@ -105,7 +106,8 @@ function getPlugin () {
           classes = i.classes,
           classList = i.element.classList,
           inViewChange = i.percent <= insideThreshold && percentInView > insideThreshold,
-          outViewChange = i.percent > insideThreshold && percentInView <= insideThreshold
+          outViewChange = i.percent > insideThreshold && percentInView <= insideThreshold,
+          inThreshold = percentInView > insideThreshold
 
         if (percentInView === 0 && i.percent === 0) continue
         i.rect = rect
@@ -147,6 +149,10 @@ function getPlugin () {
         }
         else if (type === 2) {
           classes[ClassNames.In] = true
+        }
+
+        if(inThreshold) {
+          classes[ClassNames.Threshold] = true
         }
 
         classes[ClassNames.Up] = i.direction === 1
