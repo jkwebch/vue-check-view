@@ -96,7 +96,13 @@ function getPlugin () {
             ? scrollValue === 0 ? 0 : 1
             : 2
 
-        var insideThreshold = options.insideThreshold() || 0
+        var insideThreshold = 0
+
+        if(typeof options.insideThreshold === 'function') {
+          insideThreshold = options.insideThreshold() || 0
+        } else {
+          insideThreshold = options.insideThreshold || 0
+        }
 
         var type = inType[0],
           percentInView = inType[1],
