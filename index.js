@@ -70,9 +70,11 @@ function getPlugin () {
           topIn = elementTop > viewportTop && elementTop < viewportBottom,
           bottomIn = elementBottom > viewportTop && elementBottom < viewportBottom,
           isWithin = elementTop < viewportTop && elementBottom > viewportBottom,
-          percentInView = topIn || bottomIn || isWithin
-            ? ((bottomIn ? elementBottom : viewportBottom) - (topIn ? elementTop : viewportTop)) / rect.height 
+          visible = topIn || bottomIn || isWithin
+            ? ((bottomIn ? elementBottom : viewportBottom) - (topIn ? elementTop : viewportTop))
             : 0,
+          percentInView = visible / rect.height,
+          percentVisible = visible / viewportHeight,
           centerPercent = (elementTop - viewportTop + rect.height / 2) / viewportHeight,
           zeroPoint = viewportTop - rect.height,
           topPercent = (elementTop - zeroPoint) / (viewportBottom - zeroPoint),
@@ -82,6 +84,7 @@ function getPlugin () {
         return [
           (topIn ? 1 : 0) | (bottomIn ? 2 : 0) | (isAbove ? 4 : 0) | (isBelow ? 8 : 0) | (isWithin ? 16 : 0),
           roundPercent(percentInView), 
+          roundPercent(percentVisible), 
           roundPercent(centerPercent), 
           roundPercent(topPercent), 
           rect]
@@ -106,14 +109,15 @@ function getPlugin () {
 
         var type = inType[0],
           percentInView = inType[1],
-          percentCenter = inType[2],
-          percentTop = inType[3],
-          rect = inType[4],
+          percentVisible = inType[2],
+          percentCenter = inType[3],
+          percentTop = inType[4],
+          rect = inType[5],
           classes = i.classes,
           classList = i.element.classList,
           inViewChange = i.percent <= insideThreshold && percentInView > insideThreshold,
           outViewChange = i.percent > insideThreshold && percentInView <= insideThreshold,
-          inThreshold = percentInView > insideThreshold
+          inThreshold = percentInView > insideThreshold || percentVisible > insideThreshold
 
         if (percentInView === 0 && i.percent === 0) continue
         i.rect = rect
