@@ -51,8 +51,9 @@ function getPlugin () {
       type = 0,
       itemIndex = 0
 
-    window.addEventListener('scroll', scrollThrottledHandler)
-    window.addEventListener('resize', scrollThrottledHandler)
+    window.addEventListener('scroll', scrollThrottledHandler, { passive: true })
+    if (ResizeObserver) new ResizeObserver(scrollThrottledHandler).observe(document.body)
+    else window.addEventListener('resize', scrollThrottledHandler)
 
     function scrollHandler (e) {
       var viewportTop = window.pageYOffset,
